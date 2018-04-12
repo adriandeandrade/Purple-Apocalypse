@@ -15,5 +15,6 @@ MonoBehaviour:
   moveSpeed: 1
   attackSpeed: 0
   attackCooldown: 0
+  attackDistance: 1
   _name: Walker
   description: Slow, but hits hard
