@@ -9,7 +9,7 @@ public class LivingEntityData : ScriptableObject
     public float moveSpeed;
     public float attackSpeed;
     public float attackCooldown;
+    public float attackDistance;
     public string _name;
     public string description;
-
 }

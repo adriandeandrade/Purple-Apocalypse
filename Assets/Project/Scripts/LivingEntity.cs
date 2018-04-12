@@ -6,7 +6,7 @@ using UnityEngine;
 public abstract class LivingEntity : MonoBehaviour
 {
 
-    [SerializeField] private LivingEntityData entityData;
+    [SerializeField] protected LivingEntityData entityData;
     protected float currentHealth;
 
     public string Name
@@ -57,13 +57,21 @@ public abstract class LivingEntity : MonoBehaviour
         }
     }
 
+    public float AttackDistance
+    {
+        get
+        {
+            return entityData.attackDistance;
+        }
+    }
+
     protected virtual void TakeDamage()
     {
 
     }
 
-    protected virtual void Movement(float _moveSpeed)
+    protected virtual void Movement(float _moveSpeed, Vector2 _direction)
     {
-        //transform.Translate()
+        transform.Translate(_direction * _moveSpeed * Time.deltaTime);
     }
 }

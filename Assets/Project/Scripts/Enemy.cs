@@ -7,29 +7,29 @@ using UnityEngine.UI;
 public class Enemy : LivingEntity
 {
     [SerializeField] private int health = 100;
-    [SerializeField] private int currentHealth;
     [SerializeField] private Text hpText;
-    private float moveSpeed = 3f;
-    private int cooldown = 1;
-    private Transform player;
+    private float waitTime = 1f;
+    private Transform target;
+    private bool isAttacking = false;
 
     private void Start()
     {
         currentHealth = 100;
-        player = FindObjectOfType<PlayerController>().transform;
-        InvokeRepeating("LocatePlayer", 0f, cooldown);
+        target = FindObjectOfType<PlayerController>().transform;
+        StartCoroutine(LocatePlayer());
     }
 
-    void LocatePlayer()
+    IEnumerator LocatePlayer()
     {
-        //Debug.Log("Locating player");
-        Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        MoveEnemy(directionToPlayer);
-    }
-
-    void MoveEnemy(Vector2 dir)
-    {
-        transform.Translate(dir * moveSpeed * Time.deltaTime);
+        Vector2 direction = (target.position - transform.position).normalized;
+        float distanceFromPlayer = Vector2.Distance(target.position, transform.position);
+        Debug.Log(distanceFromPlayer);
+        if (distanceFromPlayer > AttackDistance)
+        {
+            Movement(MoveSpeed, direction);
+            yield return new WaitForSeconds(waitTime);
+        }
+        yield return new WaitForSeconds(waitTime);
     }
 
     public void TakeDamage(int damage)
@@ -37,9 +37,14 @@ public class Enemy : LivingEntity
         currentHealth -= damage;
     }
 
+    private void GetTargetInformation()
+    {
+
+    }
+
     private void Update()
     {
-        Invoke("LocatePlayer", 1f);
-        hpText.text = "HP: " + currentHealth.ToString();
+        Vector2 direction = (target.position - transform.position).normalized;
+        Movement(MoveSpeed, direction);
     }
 }
