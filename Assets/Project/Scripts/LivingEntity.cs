@@ -5,9 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public abstract class LivingEntity : MonoBehaviour
 {
-
     [SerializeField] protected LivingEntityData entityData;
     protected float currentHealth;
+    protected bool isAttacking;
 
     public string Name
     {
@@ -16,7 +16,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData._name;
         }
     }
-
     public string Description
     {
         get
@@ -24,7 +23,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData.description;
         }
     }
-
     public float MoveSpeed
     {
         get
@@ -32,7 +30,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData.moveSpeed;
         }
     }
-
     public float Health
     {
         get
@@ -40,7 +37,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData.health;
         }
     }
-
     public float AttackSpeed
     {
         get
@@ -48,7 +44,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData.attackSpeed;
         }
     }
-
     public float AttackCooldown
     {
         get
@@ -56,7 +51,6 @@ public abstract class LivingEntity : MonoBehaviour
             return entityData.attackCooldown;
         }
     }
-
     public float AttackDistance
     {
         get
@@ -65,13 +59,10 @@ public abstract class LivingEntity : MonoBehaviour
         }
     }
 
-    protected virtual void TakeDamage()
+    protected virtual void TakeDamage(float damage)
     {
-
+        currentHealth -= damage;
     }
 
-    protected virtual void Movement(float _moveSpeed, Vector2 _direction)
-    {
-        transform.Translate(_direction * _moveSpeed * Time.deltaTime);
-    }
+    protected abstract void Movement();
 }

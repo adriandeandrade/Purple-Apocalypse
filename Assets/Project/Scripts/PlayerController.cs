@@ -33,7 +33,7 @@ public class PlayerController : LivingEntity
 
     }
 
-    private void Movement()
+    protected override void Movement()
     {
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
