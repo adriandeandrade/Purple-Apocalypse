@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : LivingEntity
+public class PlayerController : Entity
 {
-    //[SerializeField] private float moveSpeed;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     [SerializeField] private Collider2D attackTrigger;
 
     private Vector2 movement;
     private bool facingRight = true;
-    private bool isAttacking = false;
+    //private bool isAttacking = false;
 
     [SerializeField] private float attackCooldown = 0.3f;
     private float attackTimer = 0;
@@ -33,7 +32,7 @@ public class PlayerController : LivingEntity
 
     }
 
-    protected override void Movement()
+    void Movement()
     {
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");

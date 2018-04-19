@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public abstract class LivingEntity : MonoBehaviour
+public class Entity : MonoBehaviour, IDamageable
 {
-    [SerializeField] protected LivingEntityData entityData;
+    [SerializeField] protected EntityData entityData;
     protected float currentHealth;
     protected bool isAttacking;
 
@@ -59,10 +59,8 @@ public abstract class LivingEntity : MonoBehaviour
         }
     }
 
-    protected virtual void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
+        throw new System.NotImplementedException();
     }
-
-    protected abstract void Movement();
 }

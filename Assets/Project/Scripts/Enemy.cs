@@ -1,17 +1,19 @@
-﻿using System;
+﻿//using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Enemy : LivingEntity
+public class Enemy : Entity
 {
-    private float waitTime = 0.5f;
     private Transform target;
+
+    private float waitTime = 0.5f;
     private bool isInRange = false;
     private bool isScreaming;
-    [SerializeField] private LayerMask targetMask;
+    
     private EnemyStates currentState = EnemyStates.IDLE;
+    private Animator animator;
 
     private void Start()
     {
@@ -19,11 +21,24 @@ public class Enemy : LivingEntity
         isScreaming = false;
         isAttacking = false;
         target = FindObjectOfType<PlayerController>().transform;
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        SwitchStates();
+        if(!isScreaming && !isAttacking)
+            StartCoroutine(RandomScream());
+
+        if(!isAttacking && !isScreaming)
+        {
+            if (WithinAttackDistance())
+            {
+                isAttacking = true;
+                Debug.Log("Is within attacking distance");
+                currentState = EnemyStates.ATTACK;
+                SwitchStates();
+            }
+        }
     }
 
     void SwitchStates()
@@ -33,8 +48,10 @@ public class Enemy : LivingEntity
             case EnemyStates.IDLE:
                 break;
             case EnemyStates.ATTACK:
+                StartCoroutine(Attack());
                 break;
             case EnemyStates.WALK:
+                //Move();
                 break;
             case EnemyStates.SCREAM:
                 break;
@@ -43,51 +60,47 @@ public class Enemy : LivingEntity
 
     IEnumerator Attack()
     {
-        
+        Debug.Log("Attacked!");
+        animator.SetTrigger("attack");
         yield return new WaitForSeconds(entityData.attackCooldown);
+        isAttacking = false;
+        currentState = EnemyStates.WALK;
+        SwitchStates();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    IEnumerator RandomScream()
     {
-        PlayerController target = other.GetComponent<PlayerController>();
-        if(target != null)
+        float rand = Random.Range(0, 100);
+        if(rand < 90 && !isScreaming)
         {
-            currentState = EnemyStates.ATTACK;
-            Debug.Log("ATTACKING");
+            animator.SetTrigger("scream");
+            isScreaming = true;
+            Debug.Log("Screamed");  
+            yield return new WaitForSeconds(2f);
         }
+        isScreaming = false;
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private bool WithinAttackDistance()
     {
-        PlayerController target = other.GetComponent<PlayerController>();
-        if (target != null)
+        float distance = Vector2.Distance(target.position, transform.position);
+        if(distance > entityData.attackDistance)
         {
-            currentState = EnemyStates.IDLE;
-            Debug.Log("IDLEING");
+            return false;
         }
+
+        return true;
     }
 
-    void LocatePlayer()
+    public void Move(Vector2 direction)
     {
-        Vector2 pointA, pointB;
-        pointA = transform.position;
-        pointB.x = transform.position.x + 0.62f;
-        pointB.y = transform.position.y + 1.04f;
-        Collider2D[] targets = Physics2D.OverlapAreaAll(pointA, pointB, targetMask);
-        if(targets.Length > 0)
-        {
-            for (int i = 0; i < targets.Length; i++)
-            {
-                // DEAL DAMAGE TO TARGETS
-                Debug.Log("Damage dealt");
-            }
-        }
-        Debug.Log("RAN");
+        //Vector2 direction = (target.position - transform.position).normalized;
+        transform.Translate(direction * entityData.moveSpeed * Time.deltaTime);
     }
 
-    protected override void Movement()
+   public void Attack(int damageToDeal)
     {
-        Vector2 direction = (target.position - transform.position).normalized;
+        throw new System.NotImplementedException();
     }
 }
 
