@@ -13,18 +13,16 @@ public class Enemy : Entity
     private bool isScreaming;
     
     private EnemyStates currentState = EnemyStates.IDLE;
-    private Animator animator;
 
-    private void Start()
+    protected override void Start()
     {
         currentHealth = entityData.health;
         isScreaming = false;
         isAttacking = false;
         target = FindObjectOfType<PlayerController>().transform;
-        animator = GetComponent<Animator>();
     }
 
-    private void Update()
+    protected override void Update()
     {
         if(!isScreaming && !isAttacking)
             StartCoroutine(RandomScream());

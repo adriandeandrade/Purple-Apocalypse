@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Entity : MonoBehaviour, IDamageable
+public abstract class Entity : MonoBehaviour
 {
-    [SerializeField] protected EntityData entityData;
+    [SerializeField] protected EntityData entityData; // Holds stuff like speed, attack speed, etc
     protected float currentHealth;
     protected bool isAttacking;
+    protected Vector2 direction;
 
+    protected Animator animator;
+
+    #region Properties
     public string Name
     {
         get
@@ -58,9 +62,40 @@ public class Entity : MonoBehaviour, IDamageable
             return entityData.attackDistance;
         }
     }
+    #endregion
+
+    protected virtual void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    protected virtual void Update()
+    {
+        Move();
+    }
+
+    protected void Move()
+    {
+        transform.Translate(direction * MoveSpeed * Time.deltaTime);
+        AnimateMovement();
+    }
 
     public void TakeDamage(float damage)
     {
         throw new System.NotImplementedException();
     }
+
+    protected void AnimateMovement()
+    {
+        if(direction.x != 0 && direction.y != 0)
+        {
+            animator.SetBool("isWalking", true);
+        } else
+        {
+            animator.SetBool("isWalking", false);
+        }
+        
+    }
+
+
 }
