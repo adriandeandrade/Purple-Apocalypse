@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
 public abstract class Entity : MonoBehaviour
 {
     [SerializeField] protected EntityData entityData; // Holds stuff like speed, attack speed, etc
-    protected float currentHealth;
-    protected bool isAttacking;
-    protected Vector2 direction;
-
     protected Animator animator;
+
+    [SerializeField] protected float currentHealth;
+
+    protected bool isAttacking;
+    protected bool facingRight;
+    protected bool isWalking;
+
+    protected Vector2 direction;
 
     #region Properties
     public string Name
@@ -67,6 +70,9 @@ public abstract class Entity : MonoBehaviour
     protected virtual void Start()
     {
         animator = GetComponent<Animator>();
+        currentHealth = Health;
+        facingRight = true;
+        isWalking = false;
     }
 
     protected virtual void Update()
@@ -74,28 +80,51 @@ public abstract class Entity : MonoBehaviour
         Move();
     }
 
-    protected void Move()
+    protected virtual void Move()
     {
-        transform.Translate(direction * MoveSpeed * Time.deltaTime);
+        if (isWalking && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
+        {
+            transform.Translate(direction * MoveSpeed * Time.deltaTime);
+        }
         AnimateMovement();
     }
 
     public void TakeDamage(float damage)
     {
-        throw new System.NotImplementedException();
+        currentHealth -= damage;
+        if(currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    protected void Die()
+    {
+        Destroy(gameObject);
     }
 
     protected void AnimateMovement()
     {
-        if(direction.x != 0 && direction.y != 0)
+        if (isAttacking)
+            return;
+
+        if (direction != Vector2.zero)
         {
             animator.SetBool("isWalking", true);
-        } else
+            isWalking = true;
+        }
+        else
         {
             animator.SetBool("isWalking", false);
+            isWalking = false;
         }
-        
+
+        if (direction.x > 0 && !facingRight || direction.x < 0 && facingRight && !isAttacking)
+        {
+            facingRight = !facingRight;
+            Vector3 currentScale = transform.localScale;
+            currentScale.x *= -1;
+            transform.localScale = currentScale;
+        }
     }
-
-
 }
