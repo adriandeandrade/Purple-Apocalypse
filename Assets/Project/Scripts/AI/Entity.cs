@@ -6,10 +6,12 @@ public abstract class Entity : MonoBehaviour
 {
     [SerializeField] protected EntityData entityData; // Holds stuff like speed, attack speed, etc
     protected Animator animator;
+    protected Rigidbody2D rBody;
 
     [SerializeField] protected float currentHealth;
+    protected int knockbackForce;
 
-    protected bool isAttacking;
+    [SerializeField] protected bool isAttacking;
     protected bool facingRight;
     protected bool isWalking;
 
@@ -70,6 +72,7 @@ public abstract class Entity : MonoBehaviour
     protected virtual void Start()
     {
         animator = GetComponent<Animator>();
+        rBody = GetComponent<Rigidbody2D>();
         currentHealth = Health;
         facingRight = true;
         isWalking = false;
@@ -82,25 +85,43 @@ public abstract class Entity : MonoBehaviour
 
     protected virtual void Move()
     {
-        if (isWalking && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
+        if (isWalking && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Scream"))
         {
             transform.Translate(direction * MoveSpeed * Time.deltaTime);
         }
+
         AnimateMovement();
     }
 
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        if(currentHealth <= 0)
+        if (currentHealth <= 0)
         {
             Die();
         }
     }
 
+    public void ApplyKnockBack()
+    {
+        Vector2 knockbackDirection = transform.forward;
+        knockbackDirection.y = 1f;
+        rBody.AddForce(knockbackDirection.normalized * knockbackForce);
+    }
+
     protected void Die()
     {
         Destroy(gameObject);
+    }
+
+    protected virtual IEnumerator Attack(float cooldown)
+    {
+        isAttacking = true;
+        animator.SetTrigger("attack");
+        animator.SetBool("isAttacking", isAttacking);
+        yield return new WaitForSeconds(cooldown);
+        isAttacking = false;
+        animator.SetBool("isAttacking", isAttacking);
     }
 
     protected void AnimateMovement()
@@ -119,7 +140,12 @@ public abstract class Entity : MonoBehaviour
             isWalking = false;
         }
 
-        if (direction.x > 0 && !facingRight || direction.x < 0 && facingRight && !isAttacking)
+        FlipSprite();
+    }
+
+    void FlipSprite()
+    {
+        if (!isAttacking && direction.x > 0 && !facingRight || direction.x < 0 && facingRight)
         {
             facingRight = !facingRight;
             Vector3 currentScale = transform.localScale;

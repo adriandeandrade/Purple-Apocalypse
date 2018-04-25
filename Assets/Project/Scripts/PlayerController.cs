@@ -14,7 +14,19 @@ public class PlayerController : Entity
 
     protected override void Update()
     {
+        //if (isAttacking)
+        //    return;
+
         GetInput();
+
+        if (!isAttacking && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") && !isWalking)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                StartCoroutine(Attack(0.75f));
+            }
+        }
+
         base.Update();
     }
 
@@ -24,16 +36,4 @@ public class PlayerController : Entity
         float moveVertical = Input.GetAxisRaw("Vertical");
         direction = new Vector2(moveHorizontal, moveVertical).normalized;
     }
-
-    //IEnumerator AttackStart()
-    //{
-    //    if (isAttacking && !animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
-    //    {
-    //        animator.SetTrigger("attack");
-    //    }
-    //    yield return new WaitForSeconds(0.7f);
-    //    isAttacking = false;
-    //    attackTrigger.enabled = false;
-    //    Debug.Log("No longer attacking");
-    //}
 }
